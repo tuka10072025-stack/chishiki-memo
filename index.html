@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="知識メモ">
+
+<title>知識メモ</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  background:#f5f5f7;
+  color:#222;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:24px 16px 70px;
+}
+
+h1{
+  text-align:center;
+  margin:8px 0 4px;
+  font-size:30px;
+}
+
+.subtitle{
+  text-align:center;
+  color:#888;
+  font-size:14px;
+  margin-bottom:25px;
+}
+
+.section{
+  background:white;
+  border-radius:20px;
+  padding:16px;
+  margin-bottom:15px;
+}
+
+input,textarea,select{
+  width:100%;
+  border:1px solid #e5e5e5;
+  border-radius:13px;
+  padding:13px;
+  font-size:16px;
+  background:#fff;
+  margin-bottom:10px;
+}
+
+textarea{
+  min-height:120px;
+  resize:vertical;
+}
+
+button{
+  border:none;
+  border-radius:13px;
+  padding:13px;
+  font-size:15px;
+  cursor:pointer;
+}
+
+.save{
+  width:100%;
+  background:#222;
+  color:white;
+  font-weight:bold;
+}
+
+.search{
+  margin-bottom:10px;
+}
+
+.controls{
+  display:flex;
+  gap:8px;
+}
+
+.controls button,
+.controls select{
+  flex:1;
+  margin:0;
+}
+
+.small-title{
+  font-size:13px;
+  color:#888;
+  margin:0 0 10px 3px;
+}
+
+.review-buttons{
+  display:flex;
+  gap:8px;
+}
+
+.review-buttons button{
+  flex:1;
+  background:#eeeeef;
+}
+
+.card{
+  background:white;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+}
+
+.card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+
+.card h3{
+  margin:0;
+  font-size:18px;
+}
+
+.star{
+  background:none;
+  padding:0;
+  font-size:25px;
+}
+
+.card p{
+  white-space:pre-wrap;
+  line-height:1.55;
+  margin:12px 0;
+}
+
+.tag{
+  display:inline-block;
+  background:#eeeeef;
+  padding:5px 9px;
+  border-radius:10px;
+  font-size:12px;
+  margin-bottom:8px;
+}
+
+.date{
+  color:#999;
+  font-size:12px;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.actions button{
+  flex:1;
+  background:#eeeeef;
+}
+
+.backup{
+  display:flex;
+  gap:8px;
+}
+
+.backup button{
+  flex:1;
+  background:#eeeeef;
+}
+
+.empty{
+  text-align:center;
+  color:#999;
+  padding:30px 10px;
+}
+
+.count{
+  font-size:13px;
+  color:#888;
+  margin:10px 3px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>知識メモ</h1>
+<div class="subtitle">覚えたことを、シンプルに残す</div>
+
+<div class="section">
+
+<input
+  id="title"
+  placeholder="タイトル"
+>
+
+<textarea
+  id="content"
+  placeholder="覚えたこと・気づいたこと"
+></textarea>
+
+<input
+  id="tag"
+  placeholder="タグ　例：仕事・資格・設備"
+>
+
+<button
+  class="save"
+  id="saveButton"
+  onclick="saveMemo()"
+>
+保存する
+</button>
+
+</div>
+
+
+<div class="section">
+
+<input
+  class="search"
+  id="search"
+  placeholder="🔍 検索　複数の言葉でAND検索できます"
+  oninput="showMemos()"
+>
+
+<div class="controls">
+
+<select id="sort" onchange="showMemos()">
+<option value="new">新しい順</option>
+<option value="old">古い順</option>
+<option value="favorite">お気に入り優先</option>
+</select>
+
+<button onclick="showFavorites()">
+★ お気に入り
+</button>
+
+</div>
+
+</div>
+
+
+<div class="section">
+
+<div class="small-title">振り返る</div>
+
+<div class="review-buttons">
+
+<button onclick="reviewDays(7)">
+1週間前
+</button>
+
+<button onclick="reviewDays(14)">
+2週間前
+</button>
+
+<button onclick="reviewDays(30)">
+1か月前
+</button>
+
+</div>
+
+</div>
+
+
+<div class="section">
+
+<div class="small-title">バックアップ</div>
+
+<div class="backup">
+
+<button onclick="exportBackup()">
+書き出す
+</button>
+
+<button onclick="document.getElementById('restoreFile').click()">
+復元する
+</button>
+
+</div>
+
+<input
+  type="file"
+  id="restoreFile"
+  accept=".json,application/json"
+  style="display:none"
+  onchange="restoreBackup(event)"
+>
+
+</div>
+
+<div id="count" class="count"></div>
+
+<div id="list"></div>
+
+</div>
+
+
+<script>
+
+let editId = null;
+let favoriteOnly = false;
+let reviewMode = null;
+
+
+// --------------------
+// データ読み込み
+// --------------------
+
+function getMemos(){
+
+  try{
+
+    const data =
+      JSON.parse(
+        localStorage.getItem("knowledgeMemos") || "[]"
+      );
+
+    return Array.isArray(data) ? data : [];
+
+  }catch(e){
+
+    return [];
+
+  }
+}
+
+
+// --------------------
+// データ保存
+// --------------------
+
+function saveMemos(memos){
+
+  localStorage.setItem(
+    "knowledgeMemos",
+    JSON.stringify(memos)
+  );
+
+}
+
+
+// --------------------
+// ID作成
+// --------------------
+
+function createId(){
+
+  return (
+    Date.now().toString(36) +
+    Math.random().toString(36).slice(2)
+  );
+
+}
+
+
+// --------------------
+// 保存・編集
+// --------------------
+
+function saveMemo(){
+
+  const title =
+    document.getElementById("title").value.trim();
+
+  const content =
+    document.getElementById("content").value.trim();
+
+  const tag =
+    document.getElementById("tag").value.trim();
+
+  if(!title && !content){
+
+    alert("内容を入力してください");
+    return;
+
+  }
+
+  let memos = getMemos();
+
+  if(editId){
+
+    const index =
+      memos.findIndex(m => m.id === editId);
+
+    if(index !== -1){
+
+      memos[index].title =
+        title || "無題";
+
+      memos[index].content =
+        content;
+
+      memos[index].tag =
+        tag;
+
+      memos[index].updatedAt =
+        new Date().toISOString();
+
+    }
+
+    editId = null;
+
+    document.getElementById(
+      "saveButton"
+    ).textContent = "保存する";
+
+  }else{
+
+    memos.unshift({
+
+      id:createId(),
+
+      title:title || "無題",
+
+      content:content,
+
+      tag:tag,
+
+      favorite:false,
+
+      createdAt:
+        new Date().toISOString(),
+
+      updatedAt:
+        new Date().toISOString()
+
+    });
+
+  }
+
+  saveMemos(memos);
+
+  clearForm();
+
+  showMemos();
+
+}
+
+
+// --------------------
+// 入力欄クリア
+// --------------------
+
+function clearForm(){
+
+  document.getElementById("title").value = "";
+  document.getElementById("content").value = "";
+  document.getElementById("tag").value = "";
+
+}
+
+
+// --------------------
+// AND検索
+// --------------------
+
+function matchesSearch(memo,keyword){
+
+  const words =
+    keyword
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean);
+
+  const text =
+    (
+      memo.title + " " +
+      memo.content + " " +
+      (memo.tag || "")
+    ).toLowerCase();
+
+  return words.every(
+    word => text.includes(word)
+  );
+
+}
+
+
+// --------------------
+// 一覧表示
+// --------------------
+
+function showMemos(){
+
+  let memos = getMemos();
+
+  const keyword =
+    document
+      .getElementById("search")
+      .value
+      .trim();
+
+  const sort =
+    document
+      .getElementById("sort")
+      .value;
+
+  memos =
+    memos.filter(
+      memo => matchesSearch(memo,keyword)
+    );
+
+
+  if(favoriteOnly){
+
+    memos =
+      memos.filter(
+        memo => memo.favorite
+      );
+
+  }
+
+
+  if(reviewMode){
+
+    const target =
+      new Date();
+
+    target.setDate(
+      target.getDate() - reviewMode
+    );
+
+    memos =
+      memos.filter(memo => {
+
+        const date =
+          new Date(memo.createdAt);
+
+        const difference =
+          Math.abs(
+            date.getTime() -
+            target.getTime()
+          );
+
+        return difference <=
+          24 * 60 * 60 * 1000;
+
+      });
+
+  }
+
+
+  if(sort === "old"){
+
+    memos.sort(
+      (a,b) =>
+        new Date(a.createdAt) -
+        new Date(b.createdAt)
+    );
+
+  }else if(sort === "favorite"){
+
+    memos.sort(
+      (a,b) =>
+        Number(b.favorite) -
+        Number(a.favorite)
+    );
+
+  }else{
+
+    memos.sort(
+      (a,b) =>
+        new Date(b.createdAt) -
+        new Date(a.createdAt)
+    );
+
+  }
+
+
+  renderMemos(memos);
+
+}
+
+
+// --------------------
+// カード表示
+// --------------------
+
+function renderMemos(memos){
+
+  const list =
+    document.getElementById("list");
+
+  const count =
+    document.getElementById("count");
+
+  list.innerHTML = "";
+
+  count.textContent =
+    memos.length + "件の記録";
+
+
+  if(memos.length === 0){
+
+    const empty =
+      document.createElement("div");
+
+    empty.className = "empty";
+
+    empty.textContent =
+      "該当する記録はありません";
+
+    list.appendChild(empty);
+
+    return;
+
+  }
+
+
+  memos.forEach(memo => {
+
+    const card =
+      document.createElement("div");
+
+    card.className = "card";
+
+
+    const top =
+      document.createElement("div");
+
+    top.className = "card-top";
+
+
+    const title =
+      document.createElement("h3");
+
+    title.textContent =
+      memo.title;
+
+
+    const star =
+      document.createElement("button");
+
+    star.className = "star";
+
+    star.textContent =
+      memo.favorite ? "★" : "☆";
+
+    star.onclick =
+      () => toggleFavorite(memo.id);
+
+
+    top.appendChild(title);
+    top.appendChild(star);
+
+    card.appendChild(top);
+
+
+    if(memo.tag){
+
+      const tag =
+        document.createElement("div");
+
+      tag.className = "tag";
+
+      tag.textContent =
+        memo.tag;
+
+      card.appendChild(tag);
+
+    }
+
+
+    const content =
+      document.createElement("p");
+
+    content.textContent =
+      memo.content;
+
+    card.appendChild(content);
+
+
+    const date =
+      document.createElement("div");
+
+    date.className = "date";
+
+    date.textContent =
+      "記録：" +
+      new Date(
+        memo.createdAt
+      ).toLocaleString("ja-JP");
+
+    card.appendChild(date);
+
+
+    const actions =
+      document.createElement("div");
+
+    actions.className = "actions";
+
+
+    const editButton =
+      document.createElement("button");
+
+    editButton.textContent = "編集";
+
+    editButton.onclick =
+      () => editMemo(memo.id);
+
+
+    const deleteButton =
+      document.createElement("button");
+
+    deleteButton.textContent = "削除";
+
+    deleteButton.onclick =
+      () => deleteMemo(memo.id);
+
+
+    actions.appendChild(editButton);
+    actions.appendChild(deleteButton);
+
+    card.appendChild(actions);
+
+    list.appendChild(card);
+
+  });
+
+}
+
+
+// --------------------
+// 編集
+// --------------------
+
+function editMemo(id){
+
+  const memo =
+    getMemos().find(
+      m => m.id === id
+    );
+
+  if(!memo) return;
+
+
+  document.getElementById("title").value =
+    memo.title;
+
+  document.getElementById("content").value =
+    memo.content;
+
+  document.getElementById("tag").value =
+    memo.tag || "";
+
+  editId = id;
+
+  document.getElementById(
+    "saveButton"
+  ).textContent =
+    "変更を保存";
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+// --------------------
+// 削除
+// --------------------
+
+function deleteMemo(id){
+
+  if(
+    !confirm(
+      "この記録を削除しますか？"
+    )
+  ) return;
+
+
+  let memos =
+    getMemos().filter(
+      m => m.id !== id
+    );
+
+  saveMemos(memos);
+
+  showMemos();
+
+}
+
+
+// --------------------
+// お気に入り
+// --------------------
+
+function toggleFavorite(id){
+
+  let memos = getMemos();
+
+  const memo =
+    memos.find(
+      m => m.id === id
+    );
+
+  if(!memo) return;
+
+  memo.favorite =
+    !memo.favorite;
+
+  saveMemos(memos);
+
+  showMemos();
+
+}
+
+
+function showFavorites(){
+
+  favoriteOnly =
+    !favoriteOnly;
+
+  reviewMode = null;
+
+  showMemos();
+
+}
+
+
+// --------------------
+// 過去の記録
+// --------------------
+
+function reviewDays(days){
+
+  favoriteOnly = false;
+
+  if(reviewMode === days){
+
+    reviewMode = null;
+
+  }else{
+
+    reviewMode = days;
+
+  }
+
+  showMemos();
+
+}
+
+
+// --------------------
+// バックアップ
+// --------------------
+
+function exportBackup(){
+
+  const memos = getMemos();
+
+  const backup = {
+
+    app:"知識メモ",
+
+    version:1,
+
+    exportedAt:
+      new Date().toISOString(),
+
+    memos:memos
+
+  };
+
+
+  const blob =
+    new Blob(
+      [
+        JSON.stringify(
+          backup,
+          null,
+          2
+        )
+      ],
+      {
+        type:"application/json"
+      }
+    );
+
+
+  const url =
+    URL.createObjectURL(blob);
+
+
+  const link =
+    document.createElement("a");
+
+  link.href = url;
+
+  link.download =
+    "知識メモバックアップ_" +
+    new Date()
+      .toISOString()
+      .slice(0,10) +
+    ".json";
+
+  link.click();
+
+  URL.revokeObjectURL(url);
+
+}
+
+
+// --------------------
+// 復元
+// --------------------
+
+function restoreBackup(event){
+
+  const file =
+    event.target.files[0];
+
+  if(!file) return;
+
+
+  const reader =
+    new FileReader();
+
+
+  reader.onload = function(){
+
+    try{
+
+      const backup =
+        JSON.parse(
+          reader.result
+        );
+
+
+      if(
+        !backup.memos ||
+        !Array.isArray(
+          backup.memos
+        )
+      ){
+
+        throw new Error();
+
+      }
+
+
+      if(
+        !confirm(
+          "現在の記録をバックアップ内容に置き換えますか？"
+        )
+      ){
+
+        event.target.value = "";
+        return;
+
+      }
+
+
+      saveMemos(
+        backup.memos
+      );
+
+      showMemos();
+
+      alert(
+        "復元しました"
+      );
+
+
+    }catch(e){
+
+      alert(
+        "このバックアップファイルは読み込めません"
+      );
+
+    }
+
+
+    event.target.value = "";
+
+  };
+
+
+  reader.readAsText(file);
+
+}
+
+
+// --------------------
+// 最初の表示
+// --------------------
+
+showMemos();
+
+</script>
+
+</body>
+</html>
