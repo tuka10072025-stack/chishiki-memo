@@ -4,1003 +4,505 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="知識メモ">
-<link rel="apple-touch-icon" href="5998F9A3-7B09-4BF8-9B9F-F57C8976F03C.png">
+<meta name="theme-color" content="#f5f5f7">
 <title>知識メモ</title>
-
 <style>
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
-  background:#f5f5f7;
-  color:#222;
-}
-
-.container{
-  max-width:650px;
-  margin:auto;
-  padding:24px 16px 70px;
-}
-
-h1{
-  text-align:center;
-  margin:8px 0 4px;
-  font-size:30px;
-}
-
-.subtitle{
-  text-align:center;
-  color:#888;
-  font-size:14px;
-  margin-bottom:25px;
-}
-
-.section{
-  background:white;
-  border-radius:20px;
-  padding:16px;
-  margin-bottom:15px;
-}
-
-input,textarea,select{
-  width:100%;
-  border:1px solid #e5e5e5;
-  border-radius:13px;
-  padding:13px;
-  font-size:16px;
-  background:#fff;
-  margin-bottom:10px;
-}
-
-textarea{
-  min-height:120px;
-  resize:vertical;
-}
-
-button{
-  border:none;
-  border-radius:13px;
-  padding:13px;
-  font-size:15px;
-  cursor:pointer;
-}
-
-.save{
-  width:100%;
-  background:#222;
-  color:white;
-  font-weight:bold;
-}
-
-.search{
-  margin-bottom:10px;
-}
-
-.controls{
-  display:flex;
-  gap:8px;
-}
-
-.controls button,
-.controls select{
-  flex:1;
-  margin:0;
-}
-
-.small-title{
-  font-size:13px;
-  color:#888;
-  margin:0 0 10px 3px;
-}
-
-.review-buttons{
-  display:flex;
-  gap:8px;
-}
-
-.review-buttons button{
-  flex:1;
-  background:#eeeeef;
-}
-
-.card{
-  background:white;
-  border-radius:18px;
-  padding:16px;
-  margin-bottom:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,.04);
-}
-
-.card-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:10px;
-}
-
-.card h3{
-  margin:0;
-  font-size:18px;
-}
-
-.star{
-  background:none;
-  padding:0;
-  font-size:25px;
-}
-
-.card p{
-  white-space:pre-wrap;
-  line-height:1.55;
-  margin:12px 0;
-}
-
-.tag{
-  display:inline-block;
-  background:#eeeeef;
-  padding:5px 9px;
-  border-radius:10px;
-  font-size:12px;
-  margin-bottom:8px;
-}
-
-.date{
-  color:#999;
-  font-size:12px;
-}
-
-.actions{
-  display:flex;
-  gap:8px;
-  margin-top:12px;
-}
-
-.actions button{
-  flex:1;
-  background:#eeeeef;
-}
-
-.backup{
-  display:flex;
-  gap:8px;
-}
-
-.backup button{
-  flex:1;
-  background:#eeeeef;
-}
-
-.empty{
-  text-align:center;
-  color:#999;
-  padding:30px 10px;
-}
-
-.count{
-  font-size:13px;
-  color:#888;
-  margin:10px 3px;
-}
+*{box-sizing:border-box}
+html,body{margin:0;background:#f5f5f7;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif}
+.container{max-width:650px;margin:auto;padding:calc(24px + env(safe-area-inset-top)) 16px calc(70px + env(safe-area-inset-bottom))}
+h1{text-align:center;margin:8px 0 4px;font-size:30px}
+.subtitle{text-align:center;color:#888;font-size:14px;margin-bottom:25px}
+.section{background:#fff;border-radius:20px;padding:16px;margin-bottom:15px}
+input,textarea,select{width:100%;border:1px solid #e5e5e5;border-radius:13px;padding:14px;font-size:16px;background:#fff;color:#222;margin-bottom:10px}
+textarea{min-height:210px;resize:vertical;line-height:1.55}
+button{border:0;border-radius:13px;padding:13px;font-size:15px;cursor:pointer}
+.save{width:100%;background:#222;color:#fff;font-weight:700}
+.tool-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.tool-button{width:100%;background:#eeeeef;color:#222}
+.tool-button.listening{background:#222;color:#fff}
+.image-info,.voice-info{color:#999;font-size:12px;margin:-2px 2px 12px}
+.preview-area{display:flex;gap:8px;overflow-x:auto;margin-bottom:10px}
+.preview-wrap{position:relative;flex:0 0 auto}
+.preview{width:82px;height:82px;object-fit:cover;border-radius:12px}
+.preview-delete{position:absolute;right:-4px;top:-4px;width:24px;height:24px;padding:0;border-radius:50%;background:#222;color:#fff}
+.controls{display:flex;gap:8px}
+.controls button,.controls select{flex:1;margin:0}
+.small-title{font-size:13px;color:#888;margin:0 0 10px 3px}
+.review-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.review-buttons button{background:#eeeeef;padding:13px 3px;color:#007aff}
+.review-buttons button.active{background:#222;color:#fff}
+.backup{display:flex;gap:8px}
+.backup button{flex:1;background:#eeeeef;color:#007aff}
+.card{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card h3{margin:0;font-size:18px}
+.star{background:none;padding:0;font-size:25px}
+.tag{display:inline-block;background:#eeeeef;padding:5px 9px;border-radius:10px;font-size:12px;margin:8px 0 2px}
+.card p{white-space:pre-wrap;line-height:1.55;margin:12px 0}
+.card-images{display:flex;gap:8px;overflow-x:auto;margin:10px 0}
+.card-image{width:105px;height:105px;object-fit:cover;border-radius:12px;flex:0 0 auto}
+.date{color:#999;font-size:12px}
+.actions{display:flex;gap:8px;margin-top:12px}
+.actions button{flex:1;background:#eeeeef}
+.count{font-size:13px;color:#888;margin:10px 3px}
+.empty{text-align:center;color:#999;padding:30px 10px}
+.viewer{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:12px}
+.viewer.open{display:flex}
+.viewer img{max-width:100%;max-height:90vh;object-fit:contain}
+.viewer-close{position:absolute;top:calc(12px + env(safe-area-inset-top));right:16px;width:42px;height:42px;padding:0;border-radius:50%;font-size:24px}
 </style>
 </head>
-
 <body>
-
 <div class="container">
-
 <h1>知識メモ</h1>
 <div class="subtitle">覚えたことを、シンプルに残す</div>
 
 <div class="section">
+<input id="title" placeholder="タイトル">
+<textarea id="content" placeholder="覚えたこと・気づいたこと"></textarea>
+<input id="tag" placeholder="タグ　例：仕事・資格・設備">
 
-<input
-  id="title"
-  placeholder="タイトル"
->
-
-<textarea
-  id="content"
-  placeholder="覚えたこと・気づいたこと"
-></textarea>
-
-<input
-  id="tag"
-  placeholder="タグ　例：仕事・資格・設備"
->
-
-<button
-  class="save"
-  id="saveButton"
-  onclick="saveMemo()"
->
-保存する
-</button>
-
+<div class="tool-row">
+<button class="tool-button" id="voiceButton" onclick="toggleVoice()">🎤 音声入力</button>
+<button class="tool-button" onclick="document.getElementById('imageInput').click()">＋ 画像を追加</button>
 </div>
 
+<div id="voiceInfo" class="voice-info">音声入力は対応しているブラウザで利用できます</div>
+<input type="file" id="imageInput" accept="image/*" multiple style="display:none" onchange="selectImages(event)">
+<div class="image-info">画像は自動で圧縮して保存します</div>
+<div id="previewArea" class="preview-area"></div>
+<button class="save" id="saveButton" onclick="saveMemo()">保存する</button>
+</div>
 
 <div class="section">
-
-<input
-  class="search"
-  id="search"
-  placeholder="🔍 検索　複数の言葉でAND検索できます"
-  oninput="showMemos()"
->
-
+<input id="search" placeholder="🔍 検索　複数の言葉でAND検索できます" oninput="showMemos()">
 <div class="controls">
-
 <select id="sort" onchange="showMemos()">
 <option value="new">新しい順</option>
 <option value="old">古い順</option>
 <option value="favorite">お気に入り優先</option>
 </select>
-
-<button onclick="showFavorites()">
-★ お気に入り
-</button>
-
+<button id="favoriteButton" onclick="showFavorites()">★ お気に入り</button>
 </div>
-
 </div>
-
 
 <div class="section">
-
 <div class="small-title">振り返る</div>
-
 <div class="review-buttons">
-
-<button onclick="reviewDays(7)">
-1週間前
-</button>
-
-<button onclick="reviewDays(14)">
-2週間前
-</button>
-
-<button onclick="reviewDays(30)">
-1か月前
-</button>
-
+<button id="review3" onclick="reviewDays(3)">3日後</button>
+<button id="review7" onclick="reviewDays(7)">1週間後</button>
+<button id="review14" onclick="reviewDays(14)">2週間後</button>
+<button id="review30" onclick="reviewDays(30)">1か月後</button>
 </div>
-
 </div>
-
 
 <div class="section">
-
 <div class="small-title">バックアップ</div>
-
 <div class="backup">
-
-<button onclick="exportBackup()">
-書き出す
-</button>
-
-<button onclick="document.getElementById('restoreFile').click()">
-復元する
-</button>
-
+<button onclick="exportBackup()">書き出す</button>
+<button onclick="document.getElementById('restoreFile').click()">復元する</button>
 </div>
-
-<input
-  type="file"
-  id="restoreFile"
-  accept=".json,application/json"
-  style="display:none"
-  onchange="restoreBackup(event)"
->
-
+<input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="restoreBackup(event)">
 </div>
 
 <div id="count" class="count"></div>
-
 <div id="list"></div>
-
 </div>
 
+<div id="viewer" class="viewer" onclick="closeViewer()">
+<button class="viewer-close" onclick="closeViewer()">×</button>
+<img id="viewerImage" onclick="event.stopPropagation()">
+</div>
 
 <script>
-
-let editId = null;
-let favoriteOnly = false;
-let reviewMode = null;
-
-
-// --------------------
-// データ読み込み
-// --------------------
+const STORAGE_KEY="knowledgeMemos";
+let editId=null;
+let favoriteOnly=false;
+let reviewMode=null;
+let pendingImages=[];
+let editingImageIds=[];
+let recognition=null;
+let listening=false;
 
 function getMemos(){
-
   try{
+    const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+    return Array.isArray(data)?data:[];
+  }catch(e){ return []; }
+}
+function saveMemos(memos){ localStorage.setItem(STORAGE_KEY,JSON.stringify(memos)); }
+function createId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
 
-    const data =
-      JSON.parse(
-        localStorage.getItem("knowledgeMemos") || "[]"
-      );
+function normalizeMemo(m){
+  const rawDate=m.createdAt ?? m.date ?? m.created ?? new Date().toISOString();
+  let createdAt=rawDate;
+  if(typeof rawDate==="number") createdAt=new Date(rawDate).toISOString();
+  return {
+    ...m,
+    id:m.id ?? createId(),
+    title:m.title ?? "",
+    content:m.content ?? m.text ?? m.body ?? "",
+    tag:Array.isArray(m.tags)?m.tags.join("・"):(m.tag ?? m.tags ?? ""),
+    favorite:Boolean(m.favorite ?? m.isFavorite),
+    imageIds:Array.isArray(m.imageIds)?m.imageIds:[],
+    createdAt,
+    updatedAt:m.updatedAt ?? createdAt
+  };
+}
 
-    return Array.isArray(data) ? data : [];
+const DB_NAME="knowledgeMemoImageDB";
+const DB_VERSION=1;
+const STORE_NAME="images";
 
-  }catch(e){
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const request=indexedDB.open(DB_NAME,DB_VERSION);
+    request.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME,{keyPath:"id"});
+    };
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+  });
+}
+async function putImage(id,data){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE_NAME,"readwrite");
+    tx.objectStore(STORE_NAME).put({id,data});
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+async function getImage(id){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE_NAME,"readonly");
+    const request=tx.objectStore(STORE_NAME).get(id);
+    request.onsuccess=()=>resolve(request.result?request.result.data:null);
+    request.onerror=()=>reject(request.error);
+  });
+}
+async function deleteImage(id){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE_NAME,"readwrite");
+    tx.objectStore(STORE_NAME).delete(id);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
 
-    return [];
+function compressImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const maxSize=1000;
+        let width=img.width,height=img.height;
+        if(width>maxSize||height>maxSize){
+          const ratio=Math.min(maxSize/width,maxSize/height);
+          width=Math.round(width*ratio);
+          height=Math.round(height*ratio);
+        }
+        const canvas=document.createElement("canvas");
+        canvas.width=width; canvas.height=height;
+        const ctx=canvas.getContext("2d");
+        ctx.fillStyle="#fff"; ctx.fillRect(0,0,width,height);
+        ctx.drawImage(img,0,0,width,height);
+        resolve(canvas.toDataURL("image/jpeg",0.52));
+      };
+      img.onerror=reject;
+      img.src=reader.result;
+    };
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
 
+async function selectImages(event){
+  const files=Array.from(event.target.files||[]);
+  for(const file of files){
+    try{
+      const data=await compressImage(file);
+      pendingImages.push({id:createId(),data});
+    }catch(e){ alert("画像を読み込めませんでした"); }
   }
+  event.target.value="";
+  renderPreview();
 }
 
-
-// --------------------
-// データ保存
-// --------------------
-
-function saveMemos(memos){
-
-  localStorage.setItem(
-    "knowledgeMemos",
-    JSON.stringify(memos)
-  );
-
+async function renderPreview(){
+  const area=document.getElementById("previewArea");
+  area.innerHTML="";
+  for(const imageId of editingImageIds){
+    const data=await getImage(imageId);
+    if(data) makePreview(area,imageId,data,true);
+  }
+  for(const image of pendingImages) makePreview(area,image.id,image.data,false);
+}
+function makePreview(area,id,data,existing){
+  const wrap=document.createElement("div");
+  wrap.className="preview-wrap";
+  const img=document.createElement("img");
+  img.className="preview"; img.src=data; img.onclick=()=>openViewer(data);
+  const del=document.createElement("button");
+  del.className="preview-delete"; del.textContent="×";
+  del.onclick=()=>{
+    if(existing) editingImageIds=editingImageIds.filter(x=>x!==id);
+    else pendingImages=pendingImages.filter(x=>x.id!==id);
+    renderPreview();
+  };
+  wrap.appendChild(img); wrap.appendChild(del); area.appendChild(wrap);
 }
 
-
-// --------------------
-// ID作成
-// --------------------
-
-function createId(){
-
-  return (
-    Date.now().toString(36) +
-    Math.random().toString(36).slice(2)
-  );
-
-}
-
-
-// --------------------
-// 保存・編集
-// --------------------
-
-function saveMemo(){
-
-  const title =
-    document.getElementById("title").value.trim();
-
-  const content =
-    document.getElementById("content").value.trim();
-
-  const tag =
-    document.getElementById("tag").value.trim();
-
-  if(!title && !content){
-
-    alert("内容を入力してください");
+function toggleVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    alert("このブラウザではアプリ内の音声入力に対応していません。");
     return;
-
   }
+  if(listening && recognition){ recognition.stop(); return; }
 
-  let memos = getMemos();
+  recognition=new SR();
+  recognition.lang="ja-JP";
+  recognition.interimResults=true;
+  recognition.continuous=false;
 
-  if(editId){
+  let base=document.getElementById("content").value;
+  if(base && !base.endsWith("\n") && !base.endsWith(" ")) base+=" ";
 
-    const index =
-      memos.findIndex(m => m.id === editId);
-
-    if(index !== -1){
-
-      memos[index].title =
-        title || "無題";
-
-      memos[index].content =
-        content;
-
-      memos[index].tag =
-        tag;
-
-      memos[index].updatedAt =
-        new Date().toISOString();
-
-    }
-
-    editId = null;
-
-    document.getElementById(
-      "saveButton"
-    ).textContent = "保存する";
-
-  }else{
-
-    memos.unshift({
-
-      id:createId(),
-
-      title:title || "無題",
-
-      content:content,
-
-      tag:tag,
-
-      favorite:false,
-
-      createdAt:
-        new Date().toISOString(),
-
-      updatedAt:
-        new Date().toISOString()
-
-    });
-
-  }
-
-  saveMemos(memos);
-
-  clearForm();
-
-  showMemos();
-
+  recognition.onstart=()=>{
+    listening=true;
+    document.getElementById("voiceButton").classList.add("listening");
+    document.getElementById("voiceButton").textContent="■ 音声入力を終了";
+    document.getElementById("voiceInfo").textContent="聞き取り中です…";
+  };
+  recognition.onresult=e=>{
+    let transcript="";
+    for(let i=e.resultIndex;i<e.results.length;i++) transcript+=e.results[i][0].transcript;
+    document.getElementById("content").value=base+transcript;
+  };
+  recognition.onerror=e=>{
+    if(e.error!=="aborted") document.getElementById("voiceInfo").textContent="音声入力を開始できませんでした";
+  };
+  recognition.onend=()=>{
+    listening=false;
+    document.getElementById("voiceButton").classList.remove("listening");
+    document.getElementById("voiceButton").textContent="🎤 音声入力";
+    document.getElementById("voiceInfo").textContent="音声入力は対応しているブラウザで利用できます";
+  };
+  try{ recognition.start(); }catch(e){}
 }
 
+async function saveMemo(){
+  const title=document.getElementById("title").value.trim();
+  const content=document.getElementById("content").value.trim();
+  const tag=document.getElementById("tag").value.trim();
 
-// --------------------
-// 入力欄クリア
-// --------------------
+  if(!title&&!content&&!pendingImages.length&&!editingImageIds.length){
+    alert("内容を入力してください"); return;
+  }
+
+  let memos=getMemos().map(normalizeMemo);
+  try{
+    for(const image of pendingImages) await putImage(image.id,image.data);
+    const newImageIds=pendingImages.map(x=>x.id);
+
+    if(editId){
+      const index=memos.findIndex(x=>x.id===editId);
+      if(index!==-1){
+        const oldIds=memos[index].imageIds||[];
+        const removed=oldIds.filter(id=>!editingImageIds.includes(id));
+        for(const id of removed) await deleteImage(id);
+        memos[index]={...memos[index],title:title||"無題",content,tag,imageIds:[...editingImageIds,...newImageIds],updatedAt:new Date().toISOString()};
+      }
+    }else{
+      const now=new Date().toISOString();
+      memos.unshift({id:createId(),title:title||"無題",content,tag,favorite:false,imageIds:newImageIds,createdAt:now,updatedAt:now});
+    }
+    saveMemos(memos);
+  }catch(e){
+    alert("保存できませんでした。画像を減らしてもう一度お試しください。");
+    return;
+  }
+  clearForm(); showMemos();
+}
 
 function clearForm(){
-
-  document.getElementById("title").value = "";
-  document.getElementById("content").value = "";
-  document.getElementById("tag").value = "";
-
+  document.getElementById("title").value="";
+  document.getElementById("content").value="";
+  document.getElementById("tag").value="";
+  document.getElementById("saveButton").textContent="保存する";
+  editId=null; pendingImages=[]; editingImageIds=[]; renderPreview();
 }
-
-
-// --------------------
-// AND検索
-// --------------------
 
 function matchesSearch(memo,keyword){
-
-  const words =
-    keyword
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(Boolean);
-
-  const text =
-    (
-      memo.title + " " +
-      memo.content + " " +
-      (memo.tag || "")
-    ).toLowerCase();
-
-  return words.every(
-    word => text.includes(word)
-  );
-
+  const words=keyword.toLowerCase().split(/\s+/).filter(Boolean);
+  const text=((memo.title||"")+" "+(memo.content||memo.text||memo.body||"")+" "+(memo.tag||memo.tags||"")).toLowerCase();
+  return words.every(word=>text.includes(word));
 }
 
-
-// --------------------
-// 一覧表示
-// --------------------
+function isReviewDay(memo,days){
+  const d=memo.createdAt??memo.date;
+  if(!d)return false;
+  const created=new Date(d);
+  if(Number.isNaN(created.getTime()))return false;
+  const now=new Date();
+  const a=new Date(created.getFullYear(),created.getMonth(),created.getDate());
+  const b=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  return Math.floor((b-a)/86400000)===days;
+}
 
 function showMemos(){
-
-  let memos = getMemos();
-
-  const keyword =
-    document
-      .getElementById("search")
-      .value
-      .trim();
-
-  const sort =
-    document
-      .getElementById("sort")
-      .value;
-
-  memos =
-    memos.filter(
-      memo => matchesSearch(memo,keyword)
-    );
-
-
-  if(favoriteOnly){
-
-    memos =
-      memos.filter(
-        memo => memo.favorite
-      );
-
-  }
-
-
-  if(reviewMode){
-
-    const target =
-      new Date();
-
-    target.setDate(
-      target.getDate() - reviewMode
-    );
-
-    memos =
-      memos.filter(memo => {
-
-        const date =
-          new Date(memo.createdAt);
-
-        const difference =
-          Math.abs(
-            date.getTime() -
-            target.getTime()
-          );
-
-        return difference <=
-          24 * 60 * 60 * 1000;
-
-      });
-
-  }
-
-
-  if(sort === "old"){
-
-    memos.sort(
-      (a,b) =>
-        new Date(a.createdAt) -
-        new Date(b.createdAt)
-    );
-
-  }else if(sort === "favorite"){
-
-    memos.sort(
-      (a,b) =>
-        Number(b.favorite) -
-        Number(a.favorite)
-    );
-
-  }else{
-
-    memos.sort(
-      (a,b) =>
-        new Date(b.createdAt) -
-        new Date(a.createdAt)
-    );
-
-  }
-
-
-  renderMemos(memos);
-
+  let memos=getMemos().map(normalizeMemo);
+  const keyword=document.getElementById("search").value.trim();
+  const sort=document.getElementById("sort").value;
+  memos=memos.filter(m=>matchesSearch(m,keyword));
+  if(favoriteOnly)memos=memos.filter(x=>x.favorite);
+  if(reviewMode)memos=memos.filter(x=>isReviewDay(x,reviewMode));
+  if(sort==="old")memos.sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+  else if(sort==="favorite")memos.sort((a,b)=>Number(b.favorite)-Number(a.favorite)||new Date(b.createdAt)-new Date(a.createdAt));
+  else memos.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  updateButtons(); renderMemos(memos);
 }
 
-
-// --------------------
-// カード表示
-// --------------------
-
-function renderMemos(memos){
-
-  const list =
-    document.getElementById("list");
-
-  const count =
-    document.getElementById("count");
-
-  list.innerHTML = "";
-
-  count.textContent =
-    memos.length + "件の記録";
-
-
-  if(memos.length === 0){
-
-    const empty =
-      document.createElement("div");
-
-    empty.className = "empty";
-
-    empty.textContent =
-      "該当する記録はありません";
-
-    list.appendChild(empty);
-
-    return;
-
+async function renderMemos(memos){
+  const list=document.getElementById("list");
+  const count=document.getElementById("count");
+  list.innerHTML=""; count.textContent=memos.length+"件の記録";
+  if(!memos.length){
+    const empty=document.createElement("div");
+    empty.className="empty";
+    empty.textContent=reviewMode?"今日振り返る記録はありません":"該当する記録はありません";
+    list.appendChild(empty); return;
   }
 
-
-  memos.forEach(memo => {
-
-    const card =
-      document.createElement("div");
-
-    card.className = "card";
-
-
-    const top =
-      document.createElement("div");
-
-    top.className = "card-top";
-
-
-    const title =
-      document.createElement("h3");
-
-    title.textContent =
-      memo.title;
-
-
-    const star =
-      document.createElement("button");
-
-    star.className = "star";
-
-    star.textContent =
-      memo.favorite ? "★" : "☆";
-
-    star.onclick =
-      () => toggleFavorite(memo.id);
-
-
-    top.appendChild(title);
-    top.appendChild(star);
-
-    card.appendChild(top);
-
+  for(const memo of memos){
+    const card=document.createElement("div"); card.className="card";
+    const top=document.createElement("div"); top.className="card-top";
+    const title=document.createElement("h3"); title.textContent=memo.title||"無題";
+    const star=document.createElement("button"); star.className="star"; star.textContent=memo.favorite?"★":"☆"; star.onclick=()=>toggleFavorite(memo.id);
+    top.appendChild(title); top.appendChild(star); card.appendChild(top);
 
     if(memo.tag){
-
-      const tag =
-        document.createElement("div");
-
-      tag.className = "tag";
-
-      tag.textContent =
-        memo.tag;
-
-      card.appendChild(tag);
-
+      const tag=document.createElement("div"); tag.className="tag"; tag.textContent=memo.tag; card.appendChild(tag);
     }
-
-
-    const content =
-      document.createElement("p");
-
-    content.textContent =
-      memo.content;
-
-    card.appendChild(content);
-
-
-    const date =
-      document.createElement("div");
-
-    date.className = "date";
-
-    date.textContent =
-      "記録：" +
-      new Date(
-        memo.createdAt
-      ).toLocaleString("ja-JP");
-
+    if(memo.content){
+      const p=document.createElement("p"); p.textContent=memo.content; card.appendChild(p);
+    }
+    if(memo.imageIds?.length){
+      const images=document.createElement("div"); images.className="card-images";
+      for(const id of memo.imageIds){
+        const data=await getImage(id);
+        if(!data)continue;
+        const img=document.createElement("img"); img.className="card-image"; img.src=data; img.onclick=()=>openViewer(data);
+        images.appendChild(img);
+      }
+      card.appendChild(images);
+    }
+    const date=document.createElement("div"); date.className="date";
+    if(memo.createdAt) date.textContent="記録："+new Date(memo.createdAt).toLocaleString("ja-JP");
     card.appendChild(date);
 
-
-    const actions =
-      document.createElement("div");
-
-    actions.className = "actions";
-
-
-    const editButton =
-      document.createElement("button");
-
-    editButton.textContent = "編集";
-
-    editButton.onclick =
-      () => editMemo(memo.id);
-
-
-    const deleteButton =
-      document.createElement("button");
-
-    deleteButton.textContent = "削除";
-
-    deleteButton.onclick =
-      () => deleteMemo(memo.id);
-
-
-    actions.appendChild(editButton);
-    actions.appendChild(deleteButton);
-
-    card.appendChild(actions);
-
+    const actions=document.createElement("div"); actions.className="actions";
+    const edit=document.createElement("button"); edit.textContent="編集"; edit.onclick=()=>editMemo(memo.id);
+    const del=document.createElement("button"); del.textContent="削除"; del.onclick=()=>deleteMemo(memo.id);
+    actions.appendChild(edit); actions.appendChild(del); card.appendChild(actions);
     list.appendChild(card);
-
-  });
-
+  }
 }
 
-
-// --------------------
-// 編集
-// --------------------
-
-function editMemo(id){
-
-  const memo =
-    getMemos().find(
-      m => m.id === id
-    );
-
-  if(!memo) return;
-
-
-  document.getElementById("title").value =
-    memo.title;
-
-  document.getElementById("content").value =
-    memo.content;
-
-  document.getElementById("tag").value =
-    memo.tag || "";
-
-  editId = id;
-
-  document.getElementById(
-    "saveButton"
-  ).textContent =
-    "変更を保存";
-
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
+async function editMemo(id){
+  const memo=getMemos().map(normalizeMemo).find(x=>x.id===id);
+  if(!memo)return;
+  document.getElementById("title").value=memo.title||"";
+  document.getElementById("content").value=memo.content||"";
+  document.getElementById("tag").value=memo.tag||"";
+  editId=id; editingImageIds=[...(memo.imageIds||[])]; pendingImages=[];
+  document.getElementById("saveButton").textContent="変更を保存";
+  await renderPreview();
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
-
-// --------------------
-// 削除
-// --------------------
-
-function deleteMemo(id){
-
-  if(
-    !confirm(
-      "この記録を削除しますか？"
-    )
-  ) return;
-
-
-  let memos =
-    getMemos().filter(
-      m => m.id !== id
-    );
-
-  saveMemos(memos);
-
-  showMemos();
-
+async function deleteMemo(id){
+  if(!confirm("この記録を削除しますか？"))return;
+  let memos=getMemos().map(normalizeMemo);
+  const memo=memos.find(x=>x.id===id);
+  for(const imageId of memo?.imageIds||[]) await deleteImage(imageId);
+  memos=memos.filter(x=>x.id!==id);
+  saveMemos(memos); showMemos();
 }
-
-
-// --------------------
-// お気に入り
-// --------------------
 
 function toggleFavorite(id){
+  const memos=getMemos().map(normalizeMemo);
+  const memo=memos.find(x=>x.id===id);
+  if(!memo)return;
+  memo.favorite=!memo.favorite;
+  saveMemos(memos); showMemos();
+}
+function showFavorites(){ favoriteOnly=!favoriteOnly; reviewMode=null; showMemos(); }
+function reviewDays(days){ favoriteOnly=false; reviewMode=reviewMode===days?null:days; showMemos(); }
 
-  let memos = getMemos();
-
-  const memo =
-    memos.find(
-      m => m.id === id
-    );
-
-  if(!memo) return;
-
-  memo.favorite =
-    !memo.favorite;
-
-  saveMemos(memos);
-
-  showMemos();
-
+function updateButtons(){
+  [3,7,14,30].forEach(day=>document.getElementById("review"+day)?.classList.toggle("active",reviewMode===day));
+  const fav=document.getElementById("favoriteButton");
+  if(favoriteOnly){fav.style.background="#222";fav.style.color="#fff";}
+  else{fav.style.background="#eeeeef";fav.style.color="#007aff";}
 }
 
-
-function showFavorites(){
-
-  favoriteOnly =
-    !favoriteOnly;
-
-  reviewMode = null;
-
-  showMemos();
-
+function openViewer(data){
+  document.getElementById("viewerImage").src=data;
+  document.getElementById("viewer").classList.add("open");
+}
+function closeViewer(){
+  document.getElementById("viewer").classList.remove("open");
+  document.getElementById("viewerImage").src="";
 }
 
-
-// --------------------
-// 過去の記録
-// --------------------
-
-function reviewDays(days){
-
-  favoriteOnly = false;
-
-  if(reviewMode === days){
-
-    reviewMode = null;
-
-  }else{
-
-    reviewMode = days;
-
+async function exportBackup(){
+  const memos=getMemos().map(normalizeMemo);
+  const images={};
+  for(const memo of memos){
+    for(const id of memo.imageIds||[]){
+      const data=await getImage(id);
+      if(data)images[id]=data;
+    }
   }
-
-  showMemos();
-
+  const backup={app:"知識メモ",version:4,exportedAt:new Date().toISOString(),memos,images};
+  const blob=new Blob([JSON.stringify(backup)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;
+  link.download="知識メモバックアップ_"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-
-
-// --------------------
-// バックアップ
-// --------------------
-
-function exportBackup(){
-
-  const memos = getMemos();
-
-  const backup = {
-
-    app:"知識メモ",
-
-    version:1,
-
-    exportedAt:
-      new Date().toISOString(),
-
-    memos:memos
-
-  };
-
-
-  const blob =
-    new Blob(
-      [
-        JSON.stringify(
-          backup,
-          null,
-          2
-        )
-      ],
-      {
-        type:"application/json"
-      }
-    );
-
-
-  const url =
-    URL.createObjectURL(blob);
-
-
-  const link =
-    document.createElement("a");
-
-  link.href = url;
-
-  link.download =
-    "知識メモバックアップ_" +
-    new Date()
-      .toISOString()
-      .slice(0,10) +
-    ".json";
-
-  link.click();
-
-  URL.revokeObjectURL(url);
-
-}
-
-
-// --------------------
-// 復元
-// --------------------
 
 function restoreBackup(event){
-
-  const file =
-    event.target.files[0];
-
-  if(!file) return;
-
-
-  const reader =
-    new FileReader();
-
-
-  reader.onload = function(){
-
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async()=>{
     try{
-
-      const backup =
-        JSON.parse(
-          reader.result
-        );
-
-
-      if(
-        !backup.memos ||
-        !Array.isArray(
-          backup.memos
-        )
-      ){
-
-        throw new Error();
-
+      const backup=JSON.parse(reader.result);
+      if(!Array.isArray(backup.memos))throw new Error();
+      if(!confirm("現在の記録をバックアップ内容に置き換えますか？")){event.target.value="";return;}
+      saveMemos(backup.memos);
+      if(backup.images){
+        for(const [id,data] of Object.entries(backup.images)) await putImage(id,data);
       }
-
-
-      if(
-        !confirm(
-          "現在の記録をバックアップ内容に置き換えますか？"
-        )
-      ){
-
-        event.target.value = "";
-        return;
-
-      }
-
-
-      saveMemos(
-        backup.memos
-      );
-
-      showMemos();
-
-      alert(
-        "復元しました"
-      );
-
-
-    }catch(e){
-
-      alert(
-        "このバックアップファイルは読み込めません"
-      );
-
-    }
-
-
-    event.target.value = "";
-
+      favoriteOnly=false; reviewMode=null; showMemos(); alert("復元しました");
+    }catch(e){ alert("このバックアップファイルは読み込めません"); }
+    event.target.value="";
   };
-
-
   reader.readAsText(file);
-
 }
 
-
-// --------------------
-// 最初の表示
-// --------------------
-
 showMemos();
-
 </script>
-
 </body>
 </html>
