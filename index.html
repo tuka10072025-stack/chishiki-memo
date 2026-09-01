@@ -1,880 +1,508 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f5f1fa" />
-  <title>過去問メモ</title>
-  <style>
-    :root{
-      --bg:#f7f4fb;
-      --card:#ffffff;
-      --text:#222;
-      --sub:#777;
-      --line:#e8e2ef;
-      --accent:#6d5f86;
-      --ok:#2e9b63;
-      --ng:#d95050;
-      --chip:#eeeaf3;
-      --shadow:0 8px 28px rgba(46,33,62,.08);
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
-    body{min-height:100vh}
-    button,input,textarea{font:inherit}
-    button{cursor:pointer}
-    .app{max-width:760px;margin:0 auto;min-height:100vh;padding-bottom:calc(86px + env(safe-area-inset-bottom))}
-    .topbar{
-      position:sticky;top:0;z-index:20;
-      background:rgba(247,244,251,.94);backdrop-filter:blur(12px);
-      padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
-      border-bottom:1px solid var(--line);
-      display:flex;align-items:center;justify-content:space-between;gap:10px
-    }
-    .topbar h1{font-size:21px;margin:0}
-    .small{font-size:13px;color:var(--sub)}
-    .screen{display:none;padding:16px}
-    .screen.active{display:block}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:16px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .homeBtn{
-      border:0;border-radius:18px;padding:20px 14px;background:var(--card);box-shadow:var(--shadow);
-      min-height:96px;text-align:left
-    }
-    .homeBtn strong{display:block;font-size:18px;margin-bottom:5px}
-    .homeBtn span{color:var(--sub);font-size:13px}
-    .primary{border:0;background:var(--accent);color:white;border-radius:14px;padding:13px 16px;font-weight:700}
-    .secondary{border:1px solid var(--line);background:white;color:var(--text);border-radius:14px;padding:12px 15px}
-    .danger{border:1px solid #f0c9c9;background:#fff7f7;color:var(--ng);border-radius:14px;padding:11px 14px}
-    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .list{display:flex;flex-direction:column;gap:12px;margin-top:14px}
-    .qitem{background:white;border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;gap:12px;align-items:center}
-    .thumb{width:88px;height:110px;border-radius:12px;background:#f0edf4;object-fit:cover;flex:0 0 auto}
-    .qmeta{min-width:0;flex:1}
-    .qmeta strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px}
-    .chips{display:flex;gap:6px;flex-wrap:wrap}
-    .chip{background:var(--chip);border-radius:999px;padding:5px 9px;font-size:12px;color:#5f556d}
-    .chip.ok{background:#e6f5ec;color:#207445}
-    .chip.ng{background:#fdeaea;color:#a93a3a}
-    .empty{padding:42px 12px;text-align:center;color:var(--sub)}
-    .viewerWrap{overflow:hidden;touch-action:pan-y}
-    .slides{display:flex;width:200%;transition:transform .22s ease}
-    .slides.memo{transform:translateX(-50%)}
-    .slide{width:50%;flex:0 0 50%}
-    .imageCard{background:white;border:1px solid var(--line);border-radius:22px;padding:10px;box-shadow:var(--shadow)}
-    .questionImg{width:100%;max-height:68vh;object-fit:contain;border-radius:16px;display:block;background:#f6f4f8}
-    .answerImg{width:100%;max-height:80vh;object-fit:contain;border-radius:16px;display:block;background:#f6f4f8}
-    .answerItem{position:relative}
-    .removeAnswer{position:absolute;right:10px;top:10px;border:0;border-radius:999px;background:rgba(0,0,0,.6);color:white;width:32px;height:32px;font-weight:800}
-    .statusRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-    .statusBtn{border:2px solid transparent;background:white;border-radius:16px;padding:14px;font-weight:800;box-shadow:var(--shadow)}
-    .statusBtn.ok{color:var(--ok)}
-    .statusBtn.ng{color:var(--ng)}
-    .statusBtn.ok.selected{border-color:var(--ok);background:#eef9f3}
-    .statusBtn.ng.selected{border-color:var(--ng);background:#fff0f0}
-    .hint{text-align:center;color:var(--sub);font-size:13px;margin:12px 0 0}
-    .memoCard{background:white;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
-    .memoBlock{margin-bottom:16px}
-    .memoBlock:last-child{margin-bottom:0}
-    .memoLabel{font-size:20px;font-weight:800;margin-bottom:7px}
-    textarea{width:100%;min-height:104px;border:1px solid var(--line);border-radius:14px;padding:12px;resize:vertical;background:#fcfbfd;outline:none}
-    textarea:focus{border-color:#b9aec9;box-shadow:0 0 0 3px rgba(109,95,134,.08)}
-    .sectionTitle{font-size:19px;margin:4px 0 12px}
-    .row{display:flex;gap:10px;align-items:center}
-    .row.between{justify-content:space-between}
-    .muted{color:var(--sub)}
-    .addBox{background:white;border:1px dashed #cfc6d9;border-radius:20px;padding:20px;text-align:center}
-    input[type=file]{width:100%}
-    .bottomBar{
-      position:fixed;left:0;right:0;bottom:0;z-index:30;
-      padding:10px 14px calc(10px + env(safe-area-inset-bottom));
-      background:rgba(247,244,251,.96);backdrop-filter:blur(12px);
-      border-top:1px solid var(--line)
-    }
-    .bottomInner{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-    .navBtn{border:0;border-radius:14px;background:white;padding:11px 8px;font-weight:700}
-    .navBtn.active{background:var(--accent);color:white}
-    .badge{font-size:12px;color:var(--sub);margin-top:4px}
-
-    .folderSection{margin-top:16px}
-    .folderGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .folderBtn{
-      border:1px solid var(--line);background:white;border-radius:18px;padding:16px;text-align:left;
-      box-shadow:var(--shadow)
-    }
-    .folderBtn strong{display:block;font-size:17px;margin-bottom:4px}
-    .folderBtn span{font-size:12px;color:var(--sub)}
-    .folderAdd{border-style:dashed;background:#fcfbfd}
-    .folderSelect{
-      width:100%;border:1px solid var(--line);border-radius:13px;background:white;padding:11px 12px;color:var(--text)
-    }
-    .zoomable{cursor:zoom-in}
-    .zoomOverlay{
-      position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.96);display:none;overflow:hidden;
-      touch-action:none
-    }
-    .zoomOverlay.active{display:block}
-    .zoomStage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .zoomImage{
-      max-width:100vw;max-height:100vh;object-fit:contain;transform-origin:center center;
-      will-change:transform;user-select:none;-webkit-user-drag:none
-    }
-    .zoomClose{
-      position:absolute;z-index:110;right:14px;top:calc(14px + env(safe-area-inset-top));
-      width:42px;height:42px;border:0;border-radius:999px;background:rgba(255,255,255,.18);color:white;
-      font-size:24px;line-height:1
-    }
-
-    @media (max-width:420px){
-      .grid{grid-template-columns:1fr 1fr}
-      .homeBtn{min-height:88px}
-      .thumb{width:76px;height:96px}
-    }
-  </style>
-  <link rel="apple-touch-icon" href="./fd24f841-c908-4b6c-a735-344806f52dbf.png">
-  <link rel="icon" type="image/png" href="./fd24f841-c908-4b6c-a735-344806f52dbf.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="知識メモ">
+<meta name="theme-color" content="#f5f5f7">
+<title>知識メモ</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#f5f5f7;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif}
+.container{max-width:650px;margin:auto;padding:calc(24px + env(safe-area-inset-top)) 16px calc(70px + env(safe-area-inset-bottom))}
+h1{text-align:center;margin:8px 0 4px;font-size:30px}
+.subtitle{text-align:center;color:#888;font-size:14px;margin-bottom:25px}
+.section{background:#fff;border-radius:20px;padding:16px;margin-bottom:15px}
+input,textarea,select{width:100%;border:1px solid #e5e5e5;border-radius:13px;padding:14px;font-size:16px;background:#fff;color:#222;margin-bottom:10px}
+textarea{min-height:210px;resize:vertical;line-height:1.55}
+button{border:0;border-radius:13px;padding:13px;font-size:15px;cursor:pointer}
+.save{width:100%;background:#222;color:#fff;font-weight:700}
+.tool-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.tool-button{width:100%;background:#eeeeef;color:#222}
+.tool-button.listening{background:#222;color:#fff}
+.image-info,.voice-info{color:#999;font-size:12px;margin:-2px 2px 12px}
+.preview-area{display:flex;gap:8px;overflow-x:auto;margin-bottom:10px}
+.preview-wrap{position:relative;flex:0 0 auto}
+.preview{width:82px;height:82px;object-fit:cover;border-radius:12px}
+.preview-delete{position:absolute;right:-4px;top:-4px;width:24px;height:24px;padding:0;border-radius:50%;background:#222;color:#fff}
+.controls{display:flex;gap:8px}
+.controls button,.controls select{flex:1;margin:0}
+.small-title{font-size:13px;color:#888;margin:0 0 10px 3px}
+.review-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.review-buttons button{background:#eeeeef;padding:13px 3px;color:#007aff}
+.review-buttons button.active{background:#222;color:#fff}
+.backup{display:flex;gap:8px}
+.backup button{flex:1;background:#eeeeef;color:#007aff}
+.card{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card h3{margin:0;font-size:18px}
+.star{background:none;padding:0;font-size:25px}
+.tag{display:inline-block;background:#eeeeef;padding:5px 9px;border-radius:10px;font-size:12px;margin:8px 0 2px}
+.card p{white-space:pre-wrap;line-height:1.55;margin:12px 0}
+.card-images{display:flex;gap:8px;overflow-x:auto;margin:10px 0}
+.card-image{width:105px;height:105px;object-fit:cover;border-radius:12px;flex:0 0 auto}
+.date{color:#999;font-size:12px}
+.actions{display:flex;gap:8px;margin-top:12px}
+.actions button{flex:1;background:#eeeeef}
+.count{font-size:13px;color:#888;margin:10px 3px}
+.empty{text-align:center;color:#999;padding:30px 10px}
+.viewer{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:12px}
+.viewer.open{display:flex}
+.viewer img{max-width:100%;max-height:90vh;object-fit:contain}
+.viewer-close{position:absolute;top:calc(12px + env(safe-area-inset-top));right:16px;width:42px;height:42px;padding:0;border-radius:50%;font-size:24px}
+</style>
 </head>
 <body>
-<div class="app">
-  <header class="topbar">
-    <div>
-      <h1 id="pageTitle">過去問メモ</h1>
-      <div class="small" id="pageSub">スクショで覚える・復習する</div>
-    </div>
-    <button class="secondary" id="backBtn" style="display:none">戻る</button>
-  </header>
+<div class="container">
+<h1>知識メモ</h1>
+<div class="subtitle">覚えたことを、シンプルに残す</div>
 
-  <main>
-    <section id="homeScreen" class="screen active">
-      <div class="grid">
-        <button class="homeBtn" data-filter="due3">
-          <strong>3日前</strong><span>3日前に解いた問題を復習</span>
-        </button>
-        <button class="homeBtn" data-filter="due7">
-          <strong>1週間前</strong><span>1週間前に解いた問題を復習</span>
-        </button>
-        <button class="homeBtn" data-filter="wrong">
-          <strong>不正解</strong><span>×だった問題だけ確認</span>
-        </button>
-        <button class="homeBtn" data-filter="all">
-          <strong>すべて</strong><span>登録した問題を全部見る</span>
-        </button>
-      </div>
+<div class="section">
+<input id="title" placeholder="タイトル">
+<textarea id="content" placeholder="覚えたこと・気づいたこと"></textarea>
+<input id="tag" placeholder="タグ　例：仕事・資格・設備">
 
-      <div style="height:16px"></div>
-
-      <div class="card">
-        <div class="row between">
-          <div>
-            <strong>問題を追加</strong>
-            <div class="badge">問題アプリのスクショを選ぶだけ</div>
-          </div>
-          <button class="primary" id="chooseImageBtn">＋ 追加</button>
-        </div>
-        <input id="imageInput" type="file" accept="image/*" multiple hidden>
-      </div>
-
-      <div class="card" style="margin-top:14px">
-        <div class="row between">
-          <strong>現在の登録数</strong>
-          <strong id="countText">0問</strong>
-        </div>
-      </div>
-
-      <div class="folderSection">
-        <div class="row between" style="margin-bottom:10px">
-          <div>
-            <strong>年度フォルダ</strong>
-            <div class="small">年度ごとに問題を仕分け</div>
-          </div>
-          <button class="secondary" id="addFolderBtn">＋年度</button>
-        </div>
-        <div id="folderGrid" class="folderGrid"></div>
-      </div>
-    </section>
-
-    <section id="listScreen" class="screen">
-      <div class="row between">
-        <div>
-          <h2 class="sectionTitle" id="listTitle">問題一覧</h2>
-          <div class="small" id="listFolderSub"></div>
-        </div>
-        <button class="secondary" id="listAddBtn">＋追加</button>
-      </div>
-      <div id="questionList" class="list"></div>
-    </section>
-
-    <section id="viewerScreen" class="screen">
-      <div class="viewerWrap" id="viewerWrap">
-        <div class="slides" id="slides">
-          <div class="slide">
-            <div class="imageCard">
-              <img id="viewerImage" class="questionImg zoomable" alt="問題画像">
-            </div>
-            <div class="statusRow">
-              <button class="statusBtn ok" id="correctBtn">○ 正解</button>
-              <button class="statusBtn ng" id="wrongBtn">× 不正解</button>
-            </div>
-            <div class="card" style="margin-top:12px">
-              <div class="small">最後に解いた日</div>
-              <strong id="lastStudiedText">未回答</strong>
-            </div>
-
-            <div class="card" style="margin-top:12px">
-              <div class="small" style="margin-bottom:7px">年度フォルダ</div>
-              <select id="yearSelect" class="folderSelect"></select>
-            </div>
-
-            <div class="card" style="margin-top:12px">
-              <div class="row between">
-                <div>
-                  <strong>解答・解説スクショ</strong>
-                  <div class="small">複数枚追加できます</div>
-                </div>
-                <button class="secondary" id="addAnswerBtn">＋ 追加</button>
-              </div>
-              <input id="answerInput" type="file" accept="image/*" multiple hidden>
-              <div id="answerList" style="display:flex;flex-direction:column;gap:12px;margin-top:12px"></div>
-            </div>
-
-            <p class="hint">← 左へスワイプするとメモ</p>
-          </div>
-
-          <div class="slide">
-            <div class="memoCard">
-              <div class="row between" style="margin-bottom:12px">
-                <strong>選択肢メモ</strong>
-                <span class="small">自動保存</span>
-              </div>
-              <div class="memoBlock">
-                <div class="memoLabel">イ</div>
-                <textarea id="memoI" placeholder="イについて覚えておきたいこと"></textarea>
-              </div>
-              <div class="memoBlock">
-                <div class="memoLabel">ロ</div>
-                <textarea id="memoRo" placeholder="ロについて覚えておきたいこと"></textarea>
-              </div>
-              <div class="memoBlock">
-                <div class="memoLabel">ハ</div>
-                <textarea id="memoHa" placeholder="ハについて覚えておきたいこと"></textarea>
-              </div>
-              <div class="memoBlock">
-                <div class="memoLabel">ニ</div>
-                <textarea id="memoNi" placeholder="ニについて覚えておきたいこと"></textarea>
-              </div>
-            </div>
-            <p class="hint">右へスワイプすると問題へ戻る →</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="toolbar" style="margin-top:14px">
-        <button class="primary" id="shareImagesBtn">画像を共有</button>
-        <button class="secondary" id="prevBtn">前の問題</button>
-        <button class="secondary" id="nextBtn">次の問題</button>
-        <button class="danger" id="deleteBtn">削除</button>
-      </div>
-    </section>
-  </main>
+<div class="tool-row">
+<button class="tool-button" id="voiceButton" onclick="toggleVoice()">🎤 音声入力</button>
+<button class="tool-button" onclick="document.getElementById('imageInput').click()">＋ 画像を追加</button>
 </div>
 
-<div class="bottomBar">
-  <div class="bottomInner">
-    <button class="navBtn active" id="homeNav">ホーム</button>
-    <button class="navBtn" id="allNav">問題一覧</button>
-    <button class="navBtn" id="wrongNav">不正解</button>
-  </div>
+<div id="voiceInfo" class="voice-info">音声入力は対応しているブラウザで利用できます</div>
+<input type="file" id="imageInput" accept="image/*" multiple style="display:none" onchange="selectImages(event)">
+<div class="image-info">画像は自動で圧縮して保存します</div>
+<div id="previewArea" class="preview-area"></div>
+<button class="save" id="saveButton" onclick="saveMemo()">保存する</button>
+</div>
+
+<div class="section">
+<input id="search" placeholder="🔍 検索　複数の言葉でAND検索できます" oninput="showMemos()">
+<div class="controls">
+<select id="sort" onchange="showMemos()">
+<option value="new">新しい順</option>
+<option value="old">古い順</option>
+<option value="favorite">お気に入り優先</option>
+</select>
+<button id="favoriteButton" onclick="showFavorites()">★ お気に入り</button>
+</div>
+</div>
+
+<div class="section">
+<div class="small-title">振り返る</div>
+<div class="review-buttons">
+<button id="review3" onclick="reviewDays(3)">3日後</button>
+<button id="review7" onclick="reviewDays(7)">1週間後</button>
+<button id="review14" onclick="reviewDays(14)">2週間後</button>
+<button id="review30" onclick="reviewDays(30)">1か月後</button>
+</div>
+</div>
+
+<div class="section">
+<div class="small-title">バックアップ</div>
+<div class="backup">
+<button onclick="exportBackup()">書き出す</button>
+<button onclick="document.getElementById('restoreFile').click()">復元する</button>
+</div>
+<input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="restoreBackup(event)">
+</div>
+
+<div id="count" class="count"></div>
+<div id="list"></div>
+</div>
+
+<div id="viewer" class="viewer" onclick="closeViewer()">
+<button class="viewer-close" onclick="closeViewer()">×</button>
+<img id="viewerImage" onclick="event.stopPropagation()">
 </div>
 
 <script>
-(() => {
-  const DB_NAME = 'kakomonMemoDB';
-  const STORE = 'questions';
-  let db;
-  let currentFilter = 'all';
-  let currentYear = null;
-  let yearFolders = [];
-  let currentIds = [];
-  let currentIndex = 0;
-  let currentQuestion = null;
-  let memoSaveTimer = null;
+const STORAGE_KEY="knowledgeMemos";
+let editId=null;
+let favoriteOnly=false;
+let reviewMode=null;
+let pendingImages=[];
+let editingImageIds=[];
+let recognition=null;
+let listening=false;
 
-  const $ = id => document.getElementById(id);
+function getMemos(){
+  try{
+    const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+    return Array.isArray(data)?data:[];
+  }catch(e){ return []; }
+}
+function saveMemos(memos){ localStorage.setItem(STORAGE_KEY,JSON.stringify(memos)); }
+function createId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
 
-  function openDB(){
-    return new Promise((resolve,reject)=>{
-      const req = indexedDB.open(DB_NAME,1);
-      req.onupgradeneeded = e => {
-        const d = e.target.result;
-        if(!d.objectStoreNames.contains(STORE)){
-          d.createObjectStore(STORE,{keyPath:'id'});
+function normalizeMemo(m){
+  const rawDate=m.createdAt ?? m.date ?? m.created ?? new Date().toISOString();
+  let createdAt=rawDate;
+  if(typeof rawDate==="number") createdAt=new Date(rawDate).toISOString();
+  return {
+    ...m,
+    id:m.id ?? createId(),
+    title:m.title ?? "",
+    content:m.content ?? m.text ?? m.body ?? "",
+    tag:Array.isArray(m.tags)?m.tags.join("・"):(m.tag ?? m.tags ?? ""),
+    favorite:Boolean(m.favorite ?? m.isFavorite),
+    imageIds:Array.isArray(m.imageIds)?m.imageIds:[],
+    createdAt,
+    updatedAt:m.updatedAt ?? createdAt
+  };
+}
+
+const DB_NAME="knowledgeMemoImageDB";
+const DB_VERSION=1;
+const STORE_NAME="images";
+
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const request=indexedDB.open(DB_NAME,DB_VERSION);
+    request.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME,{keyPath:"id"});
+    };
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+  });
+}
+async function putImage(id,data){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE_NAME,"readwrite");
+    tx.objectStore(STORE_NAME).put({id,data});
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+async function getImage(id){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE_NAME,"readonly");
+    const request=tx.objectStore(STORE_NAME).get(id);
+    request.onsuccess=()=>resolve(request.result?request.result.data:null);
+    request.onerror=()=>reject(request.error);
+  });
+}
+async function deleteImage(id){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE_NAME,"readwrite");
+    tx.objectStore(STORE_NAME).delete(id);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+
+function compressImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const maxSize=1000;
+        let width=img.width,height=img.height;
+        if(width>maxSize||height>maxSize){
+          const ratio=Math.min(maxSize/width,maxSize/height);
+          width=Math.round(width*ratio);
+          height=Math.round(height*ratio);
         }
+        const canvas=document.createElement("canvas");
+        canvas.width=width; canvas.height=height;
+        const ctx=canvas.getContext("2d");
+        ctx.fillStyle="#fff"; ctx.fillRect(0,0,width,height);
+        ctx.drawImage(img,0,0,width,height);
+        resolve(canvas.toDataURL("image/jpeg",0.52));
       };
-      req.onsuccess = e => { db = e.target.result; resolve(db); };
-      req.onerror = () => reject(req.error);
-    });
-  }
+      img.onerror=reject;
+      img.src=reader.result;
+    };
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
 
-  function putQuestion(q){
-    return new Promise((resolve,reject)=>{
-      const tx = db.transaction(STORE,'readwrite');
-      tx.objectStore(STORE).put(q);
-      tx.oncomplete = resolve;
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-
-  function getQuestion(id){
-    return new Promise((resolve,reject)=>{
-      const req = db.transaction(STORE,'readonly').objectStore(STORE).get(id);
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-  }
-
-  function getAll(){
-    return new Promise((resolve,reject)=>{
-      const req = db.transaction(STORE,'readonly').objectStore(STORE).getAll();
-      req.onsuccess = () => resolve(req.result || []);
-      req.onerror = () => reject(req.error);
-    });
-  }
-
-  function deleteQuestion(id){
-    return new Promise((resolve,reject)=>{
-      const tx = db.transaction(STORE,'readwrite');
-      tx.objectStore(STORE).delete(id);
-      tx.oncomplete = resolve;
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-
-  function showScreen(name){
-    ['homeScreen','listScreen','viewerScreen'].forEach(id => $(id).classList.remove('active'));
-    $(name).classList.add('active');
-    $('backBtn').style.display = name === 'homeScreen' ? 'none' : 'inline-block';
-    $('pageTitle').textContent = name === 'viewerScreen' ? '問題' : name === 'listScreen' ? '問題一覧' : '過去問メモ';
-    $('pageSub').textContent = name === 'viewerScreen' ? '左スワイプでメモ' : name === 'listScreen' ? 'タップして開く' : 'スクショで覚える・復習する';
-    updateNav(name);
-  }
-
-  function updateNav(name){
-    ['homeNav','allNav','wrongNav'].forEach(id => $(id).classList.remove('active'));
-    if(name === 'homeScreen') $('homeNav').classList.add('active');
-    else if(currentFilter === 'wrong') $('wrongNav').classList.add('active');
-    else $('allNav').classList.add('active');
-  }
-
-  function dateText(ts){
-    if(!ts) return '未回答';
-    return new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'numeric',day:'numeric'}).format(new Date(ts));
-  }
-
-  function startOfDay(ts){
-    const d = new Date(ts);
-    d.setHours(0,0,0,0);
-    return d.getTime();
-  }
-
-  function dayDiff(ts){
-    if(!ts) return null;
-    const now = startOfDay(Date.now());
-    const then = startOfDay(ts);
-    return Math.round((now - then) / 86400000);
-  }
-
-  function filterQuestions(all, filter, year=currentYear){
-    let arr = [...all];
-    if(year !== null){
-      arr = arr.filter(q => (q.year || '未分類') === year);
-    }
-    // 問題番号は登録した順に 1,2,3...
-    const sorted = arr.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
-    if(filter === 'wrong') return sorted.filter(q => q.result === 'wrong');
-    if(filter === 'due3') return sorted.filter(q => dayDiff(q.lastStudiedAt) === 3);
-    if(filter === 'due7') return sorted.filter(q => dayDiff(q.lastStudiedAt) === 7);
-    return sorted;
-  }
-
-
-  function loadFolders(){
+async function selectImages(event){
+  const files=Array.from(event.target.files||[]);
+  for(const file of files){
     try{
-      yearFolders = JSON.parse(localStorage.getItem('kakomonYearFolders') || '[]');
-      if(!Array.isArray(yearFolders)) yearFolders = [];
-    }catch{
-      yearFolders = [];
-    }
+      const data=await compressImage(file);
+      pendingImages.push({id:createId(),data});
+    }catch(e){ alert("画像を読み込めませんでした"); }
   }
+  event.target.value="";
+  renderPreview();
+}
 
-  function saveFolders(){
-    localStorage.setItem('kakomonYearFolders', JSON.stringify(yearFolders));
+async function renderPreview(){
+  const area=document.getElementById("previewArea");
+  area.innerHTML="";
+  for(const imageId of editingImageIds){
+    const data=await getImage(imageId);
+    if(data) makePreview(area,imageId,data,true);
   }
-
-  async function ensureFolderFromQuestions(){
-    const all = await getAll();
-    const found = [...new Set(all.map(q => q.year).filter(Boolean))];
-    let changed = false;
-    for(const y of found){
-      if(!yearFolders.includes(y)){
-        yearFolders.push(y);
-        changed = true;
-      }
-    }
-    if(changed){
-      yearFolders.sort().reverse();
-      saveFolders();
-    }
-  }
-
-  async function renderFolders(){
-    await ensureFolderFromQuestions();
-    const all = await getAll();
-    const grid = $('folderGrid');
-    if(!grid) return;
-    grid.innerHTML = '';
-
-    const folders = [...yearFolders];
-    const unclassifiedCount = all.filter(q => !q.year).length;
-    if(unclassifiedCount > 0) folders.push('未分類');
-
-    if(!folders.length){
-      grid.innerHTML = '<div class="small" style="grid-column:1/-1;padding:8px 2px">「＋年度」から年度フォルダを作れます。</div>';
-      return;
-    }
-
-    for(const folder of folders){
-      const count = all.filter(q => (q.year || '未分類') === folder).length;
-      const b = document.createElement('button');
-      b.className = 'folderBtn';
-      b.innerHTML = `<strong>${folder}</strong><span>${count}問</span>`;
-      b.onclick = () => openFolder(folder);
-      grid.appendChild(b);
-    }
-  }
-
-  async function addFolder(){
-    const name = prompt('年度を入力してください\\n例：令和8年、2026年');
-    if(!name) return;
-    const clean = name.trim();
-    if(!clean) return;
-    if(!yearFolders.includes(clean)){
-      yearFolders.push(clean);
-      yearFolders.sort().reverse();
-      saveFolders();
-      await renderFolders();
-    }
-  }
-
-  async function openFolder(folder){
-    currentYear = folder;
-    await openList('all');
-  }
-
-  function fillYearSelect(){
-    const sel = $('yearSelect');
-    if(!sel) return;
-    const value = currentQuestion?.year || '未分類';
-    const folders = [...yearFolders];
-    if(!folders.includes(value) && value !== '未分類') folders.push(value);
-    sel.innerHTML = '';
-    const un = document.createElement('option');
-    un.value = '未分類';
-    un.textContent = '未分類';
-    sel.appendChild(un);
-    for(const y of folders){
-      if(y === '未分類') continue;
-      const opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y;
-      sel.appendChild(opt);
-    }
-    sel.value = value;
-  }
-
-  function pickYearForNewQuestion(){
-    if(currentYear && currentYear !== '未分類') return currentYear;
-    if(yearFolders.length === 1) return yearFolders[0];
-    if(yearFolders.length > 1){
-      const msg = '保存する年度を入力してください\\n' + yearFolders.join(' / ');
-      const name = prompt(msg, yearFolders[0]);
-      if(name && name.trim()){
-        const clean = name.trim();
-        if(!yearFolders.includes(clean)){
-          yearFolders.push(clean);
-          yearFolders.sort().reverse();
-          saveFolders();
-        }
-        return clean;
-      }
-    }
-    return null;
-  }
-
-  async function refreshCount(){
-    const all = await getAll();
-    $('countText').textContent = `${all.length}問`;
-    await renderFolders();
-  }
-
-  async function openList(filter='all'){
-    currentFilter = filter;
-    const all = await getAll();
-    const filtered = filterQuestions(all, filter, currentYear);
-    currentIds = filtered.map(q=>q.id);
-    const titles = {all:'すべての問題',wrong:'不正解の問題',due3:'3日前に解いた問題',due7:'1週間前に解いた問題'};
-    $('listTitle').textContent = currentYear ? `${currentYear}・${titles[filter] || '問題一覧'}` : (titles[filter] || '問題一覧');
-    $('listFolderSub').textContent = currentYear ? '登録順に問題1、問題2、問題3…' : '登録順に問題1、問題2、問題3…';
-    const list = $('questionList');
-    list.innerHTML = '';
-    if(!filtered.length){
-      list.innerHTML = `<div class="empty">該当する問題はありません</div>`;
-    } else {
-      for(const [index,q] of filtered.entries()){
-        const url = URL.createObjectURL(q.image);
-        const el = document.createElement('button');
-        el.className='qitem';
-        el.style.width='100%';
-        el.style.border='1px solid var(--line)';
-        el.style.textAlign='left';
-        el.innerHTML = `
-          <img class="thumb" src="${url}" alt="">
-          <div class="qmeta">
-            <strong>問題 ${index+1}</strong>
-            <div class="chips">
-              ${q.result === 'correct' ? '<span class="chip ok">○ 正解</span>' : ''}
-              ${q.result === 'wrong' ? '<span class="chip ng">× 不正解</span>' : ''}
-              ${!q.result ? '<span class="chip">未回答</span>' : ''}
-              <span class="chip">${q.lastStudiedAt ? dateText(q.lastStudiedAt) : '未学習'}</span>
-            </div>
-          </div>`;
-        el.onclick=()=>openViewerById(q.id);
-        list.appendChild(el);
-      }
-    }
-    showScreen('listScreen');
-  }
-
-  async function openViewerById(id){
-    if(!currentIds.includes(id)){
-      const all=await getAll();
-      currentIds=filterQuestions(all,currentFilter,currentYear).map(q=>q.id);
-    }
-    currentIndex=Math.max(0,currentIds.indexOf(id));
-    await loadCurrent();
-    showScreen('viewerScreen');
-  }
-
-  async function loadCurrent(){
-    if(!currentIds.length){ await openList(currentFilter); return; }
-    const id=currentIds[currentIndex];
-    const q=await getQuestion(id);
-    if(!q){ await openList(currentFilter); return; }
-    currentQuestion=q;
-    if($('viewerImage').dataset.url) URL.revokeObjectURL($('viewerImage').dataset.url);
-    const url=URL.createObjectURL(q.image);
-    $('viewerImage').src=url;
-    $('viewerImage').dataset.url=url;
-    $('memoI').value=q.memos?.i || '';
-    $('memoRo').value=q.memos?.ro || '';
-    $('memoHa').value=q.memos?.ha || '';
-    $('memoNi').value=q.memos?.ni || '';
-    $('correctBtn').classList.toggle('selected',q.result==='correct');
-    $('wrongBtn').classList.toggle('selected',q.result==='wrong');
-    $('lastStudiedText').textContent=dateText(q.lastStudiedAt);
-    if(!q.answers) q.answers=[];
-    renderAnswers();
-    $('slides').classList.remove('memo');
-    $('prevBtn').disabled=currentIndex===0;
-    $('nextBtn').disabled=currentIndex===currentIds.length-1;
-  }
-
-  async function setResult(result){
-    if(!currentQuestion) return;
-    currentQuestion.result=result;
-    currentQuestion.lastStudiedAt=Date.now();
-    await putQuestion(currentQuestion);
-    $('correctBtn').classList.toggle('selected',result==='correct');
-    $('wrongBtn').classList.toggle('selected',result==='wrong');
-    $('lastStudiedText').textContent=dateText(currentQuestion.lastStudiedAt);
-  }
-
-  function scheduleMemoSave(){
-    clearTimeout(memoSaveTimer);
-    memoSaveTimer=setTimeout(async()=>{
-      if(!currentQuestion) return;
-      currentQuestion.memos={
-        i:$('memoI').value,
-        ro:$('memoRo').value,
-        ha:$('memoHa').value,
-        ni:$('memoNi').value
-      };
-      await putQuestion(currentQuestion);
-    },250);
-  }
-
-  async function addImages(files){
-    if(!files?.length) return;
-    const chosenYear = pickYearForNewQuestion();
-    const now=Date.now();
-    let n=0;
-    for(const file of files){
-      const q={
-        id: crypto.randomUUID ? crypto.randomUUID() : `${now}-${Math.random()}`,
-        image:file,
-        answers:[],
-        year:chosenYear,
-        createdAt:now+n,
-        lastStudiedAt:null,
-        result:null,
-        memos:{i:'',ro:'',ha:'',ni:''}
-      };
-      await putQuestion(q);
-      n++;
-    }
-    $('imageInput').value='';
-    await refreshCount();
-    await openList('all');
-  }
-
-
-  let answerUrls = [];
-
-  function renderAnswers(){
-    answerUrls.forEach(u=>URL.revokeObjectURL(u));
-    answerUrls=[];
-    const box=$('answerList');
-    if(!box || !currentQuestion) return;
-    box.innerHTML='';
-    const answers=currentQuestion.answers || [];
-    if(!answers.length){
-      box.innerHTML='<div class="small">まだ解答・解説スクショはありません。</div>';
-      return;
-    }
-    answers.forEach((blob,idx)=>{
-      const url=URL.createObjectURL(blob);
-      answerUrls.push(url);
-      const item=document.createElement('div');
-      item.className='answerItem imageCard';
-      item.innerHTML=`<img class="answerImg zoomable" src="${url}" alt="解答画像 ${idx+1}"><button class="removeAnswer" aria-label="削除">×</button>`;
-      item.querySelector('.removeAnswer').onclick=async()=>{
-        if(!confirm(`解答画像 ${idx+1} を削除しますか？`)) return;
-        currentQuestion.answers.splice(idx,1);
-        await putQuestion(currentQuestion);
-        renderAnswers();
-      };
-      box.appendChild(item);
-    });
-  }
-
-  async function addAnswers(files){
-    if(!currentQuestion || !files?.length) return;
-    currentQuestion.answers = currentQuestion.answers || [];
-    for(const file of files) currentQuestion.answers.push(file);
-    await putQuestion(currentQuestion);
-    $('answerInput').value='';
-    renderAnswers();
-  }
-
-
-  $('addFolderBtn').onclick = addFolder;
-
-  $('yearSelect').addEventListener('change', async e => {
-    if(!currentQuestion) return;
-    const v = e.target.value;
-    currentQuestion.year = v === '未分類' ? null : v;
-    if(v !== '未分類' && !yearFolders.includes(v)){
-      yearFolders.push(v);
-      yearFolders.sort().reverse();
-      saveFolders();
-    }
-    await putQuestion(currentQuestion);
-    await renderFolders();
-  });
-
-  $('chooseImageBtn').onclick=()=>$('imageInput').click();
-  $('listAddBtn').onclick=()=>$('imageInput').click();
-  $('imageInput').addEventListener('change',e=>addImages([...e.target.files]));
-  $('addAnswerBtn').onclick=()=>$('answerInput').click();
-  $('answerInput').addEventListener('change',e=>addAnswers([...e.target.files]));
-
-  document.querySelectorAll('.homeBtn[data-filter]').forEach(btn=>{
-    btn.onclick=()=>{ currentYear=null; openList(btn.dataset.filter); };
-  });
-
-  $('homeNav').onclick=async()=>{ currentYear=null; await refreshCount(); showScreen('homeScreen'); };
-  $('allNav').onclick=()=>{ currentYear=null; openList('all'); };
-  $('wrongNav').onclick=()=>{ currentYear=null; openList('wrong'); };
-  $('backBtn').onclick=()=>{
-    if($('viewerScreen').classList.contains('active')) openList(currentFilter);
-    else showScreen('homeScreen');
+  for(const image of pendingImages) makePreview(area,image.id,image.data,false);
+}
+function makePreview(area,id,data,existing){
+  const wrap=document.createElement("div");
+  wrap.className="preview-wrap";
+  const img=document.createElement("img");
+  img.className="preview"; img.src=data; img.onclick=()=>openViewer(data);
+  const del=document.createElement("button");
+  del.className="preview-delete"; del.textContent="×";
+  del.onclick=()=>{
+    if(existing) editingImageIds=editingImageIds.filter(x=>x!==id);
+    else pendingImages=pendingImages.filter(x=>x.id!==id);
+    renderPreview();
   };
+  wrap.appendChild(img); wrap.appendChild(del); area.appendChild(wrap);
+}
 
-  $('correctBtn').onclick=()=>setResult('correct');
-  $('wrongBtn').onclick=()=>setResult('wrong');
+function toggleVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    alert("このブラウザではアプリ内の音声入力に対応していません。");
+    return;
+  }
+  if(listening && recognition){ recognition.stop(); return; }
 
-  ['memoI','memoRo','memoHa','memoNi'].forEach(id=>{
-    $(id).addEventListener('input',scheduleMemoSave);
-  });
+  recognition=new SR();
+  recognition.lang="ja-JP";
+  recognition.interimResults=true;
+  recognition.continuous=false;
 
-  $('prevBtn').onclick=async()=>{
-    if(currentIndex>0){ currentIndex--; await loadCurrent(); }
+  let base=document.getElementById("content").value;
+  if(base && !base.endsWith("\n") && !base.endsWith(" ")) base+=" ";
+
+  recognition.onstart=()=>{
+    listening=true;
+    document.getElementById("voiceButton").classList.add("listening");
+    document.getElementById("voiceButton").textContent="■ 音声入力を終了";
+    document.getElementById("voiceInfo").textContent="聞き取り中です…";
   };
-  $('nextBtn').onclick=async()=>{
-    if(currentIndex<currentIds.length-1){ currentIndex++; await loadCurrent(); }
+  recognition.onresult=e=>{
+    let transcript="";
+    for(let i=e.resultIndex;i<e.results.length;i++) transcript+=e.results[i][0].transcript;
+    document.getElementById("content").value=base+transcript;
   };
+  recognition.onerror=e=>{
+    if(e.error!=="aborted") document.getElementById("voiceInfo").textContent="音声入力を開始できませんでした";
+  };
+  recognition.onend=()=>{
+    listening=false;
+    document.getElementById("voiceButton").classList.remove("listening");
+    document.getElementById("voiceButton").textContent="🎤 音声入力";
+    document.getElementById("voiceInfo").textContent="音声入力は対応しているブラウザで利用できます";
+  };
+  try{ recognition.start(); }catch(e){}
+}
 
+async function saveMemo(){
+  const title=document.getElementById("title").value.trim();
+  const content=document.getElementById("content").value.trim();
+  const tag=document.getElementById("tag").value.trim();
 
-  $('shareImagesBtn').onclick = async () => {
-    if(!currentQuestion) return;
+  if(!title&&!content&&!pendingImages.length&&!editingImageIds.length){
+    alert("内容を入力してください"); return;
+  }
 
-    const blobs = [currentQuestion.image, ...(currentQuestion.answers || [])].filter(Boolean);
-    if(!blobs.length){
-      alert('共有できる画像がありません。');
-      return;
+  let memos=getMemos().map(normalizeMemo);
+  try{
+    for(const image of pendingImages) await putImage(image.id,image.data);
+    const newImageIds=pendingImages.map(x=>x.id);
+
+    if(editId){
+      const index=memos.findIndex(x=>x.id===editId);
+      if(index!==-1){
+        const oldIds=memos[index].imageIds||[];
+        const removed=oldIds.filter(id=>!editingImageIds.includes(id));
+        for(const id of removed) await deleteImage(id);
+        memos[index]={...memos[index],title:title||"無題",content,tag,imageIds:[...editingImageIds,...newImageIds],updatedAt:new Date().toISOString()};
+      }
+    }else{
+      const now=new Date().toISOString();
+      memos.unshift({id:createId(),title:title||"無題",content,tag,favorite:false,imageIds:newImageIds,createdAt:now,updatedAt:now});
     }
+    saveMemos(memos);
+  }catch(e){
+    alert("保存できませんでした。画像を減らしてもう一度お試しください。");
+    return;
+  }
+  clearForm(); showMemos();
+}
 
-    const files = blobs.map((blob, index) => {
-      const type = blob.type || 'image/jpeg';
-      let ext = 'jpg';
-      if(type.includes('png')) ext = 'png';
-      else if(type.includes('webp')) ext = 'webp';
-      else if(type.includes('heic') || type.includes('heif')) ext = 'heic';
+function clearForm(){
+  document.getElementById("title").value="";
+  document.getElementById("content").value="";
+  document.getElementById("tag").value="";
+  document.getElementById("saveButton").textContent="保存する";
+  editId=null; pendingImages=[]; editingImageIds=[]; renderPreview();
+}
 
-      const name = index === 0
-        ? `kakomon_question.${ext}`
-        : `kakomon_answer_${index}.${ext}`;
+function matchesSearch(memo,keyword){
+  const words=keyword.toLowerCase().split(/\s+/).filter(Boolean);
+  const text=((memo.title||"")+" "+(memo.content||memo.text||memo.body||"")+" "+(memo.tag||memo.tags||"")).toLowerCase();
+  return words.every(word=>text.includes(word));
+}
 
-      return new File([blob], name, { type });
-    });
+function isReviewDay(memo,days){
+  const d=memo.createdAt??memo.date;
+  if(!d)return false;
+  const created=new Date(d);
+  if(Number.isNaN(created.getTime()))return false;
+  const now=new Date();
+  const a=new Date(created.getFullYear(),created.getMonth(),created.getDate());
+  const b=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  return Math.floor((b-a)/86400000)===days;
+}
 
+function showMemos(){
+  let memos=getMemos().map(normalizeMemo);
+  const keyword=document.getElementById("search").value.trim();
+  const sort=document.getElementById("sort").value;
+  memos=memos.filter(m=>matchesSearch(m,keyword));
+  if(favoriteOnly)memos=memos.filter(x=>x.favorite);
+  if(reviewMode)memos=memos.filter(x=>isReviewDay(x,reviewMode));
+  if(sort==="old")memos.sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+  else if(sort==="favorite")memos.sort((a,b)=>Number(b.favorite)-Number(a.favorite)||new Date(b.createdAt)-new Date(a.createdAt));
+  else memos.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  updateButtons(); renderMemos(memos);
+}
+
+async function renderMemos(memos){
+  const list=document.getElementById("list");
+  const count=document.getElementById("count");
+  list.innerHTML=""; count.textContent=memos.length+"件の記録";
+  if(!memos.length){
+    const empty=document.createElement("div");
+    empty.className="empty";
+    empty.textContent=reviewMode?"今日振り返る記録はありません":"該当する記録はありません";
+    list.appendChild(empty); return;
+  }
+
+  for(const memo of memos){
+    const card=document.createElement("div"); card.className="card";
+    const top=document.createElement("div"); top.className="card-top";
+    const title=document.createElement("h3"); title.textContent=memo.title||"無題";
+    const star=document.createElement("button"); star.className="star"; star.textContent=memo.favorite?"★":"☆"; star.onclick=()=>toggleFavorite(memo.id);
+    top.appendChild(title); top.appendChild(star); card.appendChild(top);
+
+    if(memo.tag){
+      const tag=document.createElement("div"); tag.className="tag"; tag.textContent=memo.tag; card.appendChild(tag);
+    }
+    if(memo.content){
+      const p=document.createElement("p"); p.textContent=memo.content; card.appendChild(p);
+    }
+    if(memo.imageIds?.length){
+      const images=document.createElement("div"); images.className="card-images";
+      for(const id of memo.imageIds){
+        const data=await getImage(id);
+        if(!data)continue;
+        const img=document.createElement("img"); img.className="card-image"; img.src=data; img.onclick=()=>openViewer(data);
+        images.appendChild(img);
+      }
+      card.appendChild(images);
+    }
+    const date=document.createElement("div"); date.className="date";
+    if(memo.createdAt) date.textContent="記録："+new Date(memo.createdAt).toLocaleString("ja-JP");
+    card.appendChild(date);
+
+    const actions=document.createElement("div"); actions.className="actions";
+    const edit=document.createElement("button"); edit.textContent="編集"; edit.onclick=()=>editMemo(memo.id);
+    const del=document.createElement("button"); del.textContent="削除"; del.onclick=()=>deleteMemo(memo.id);
+    actions.appendChild(edit); actions.appendChild(del); card.appendChild(actions);
+    list.appendChild(card);
+  }
+}
+
+async function editMemo(id){
+  const memo=getMemos().map(normalizeMemo).find(x=>x.id===id);
+  if(!memo)return;
+  document.getElementById("title").value=memo.title||"";
+  document.getElementById("content").value=memo.content||"";
+  document.getElementById("tag").value=memo.tag||"";
+  editId=id; editingImageIds=[...(memo.imageIds||[])]; pendingImages=[];
+  document.getElementById("saveButton").textContent="変更を保存";
+  await renderPreview();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+async function deleteMemo(id){
+  if(!confirm("この記録を削除しますか？"))return;
+  let memos=getMemos().map(normalizeMemo);
+  const memo=memos.find(x=>x.id===id);
+  for(const imageId of memo?.imageIds||[]) await deleteImage(imageId);
+  memos=memos.filter(x=>x.id!==id);
+  saveMemos(memos); showMemos();
+}
+
+function toggleFavorite(id){
+  const memos=getMemos().map(normalizeMemo);
+  const memo=memos.find(x=>x.id===id);
+  if(!memo)return;
+  memo.favorite=!memo.favorite;
+  saveMemos(memos); showMemos();
+}
+function showFavorites(){ favoriteOnly=!favoriteOnly; reviewMode=null; showMemos(); }
+function reviewDays(days){ favoriteOnly=false; reviewMode=reviewMode===days?null:days; showMemos(); }
+
+function updateButtons(){
+  [3,7,14,30].forEach(day=>document.getElementById("review"+day)?.classList.toggle("active",reviewMode===day));
+  const fav=document.getElementById("favoriteButton");
+  if(favoriteOnly){fav.style.background="#222";fav.style.color="#fff";}
+  else{fav.style.background="#eeeeef";fav.style.color="#007aff";}
+}
+
+function openViewer(data){
+  document.getElementById("viewerImage").src=data;
+  document.getElementById("viewer").classList.add("open");
+}
+function closeViewer(){
+  document.getElementById("viewer").classList.remove("open");
+  document.getElementById("viewerImage").src="";
+}
+
+async function exportBackup(){
+  const memos=getMemos().map(normalizeMemo);
+  const images={};
+  for(const memo of memos){
+    for(const id of memo.imageIds||[]){
+      const data=await getImage(id);
+      if(data)images[id]=data;
+    }
+  }
+  const backup={app:"知識メモ",version:4,exportedAt:new Date().toISOString(),memos,images};
+  const blob=new Blob([JSON.stringify(backup)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;
+  link.download="知識メモバックアップ_"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function restoreBackup(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async()=>{
     try{
-      if(navigator.share && (!navigator.canShare || navigator.canShare({ files }))){
-        await navigator.share({
-          files,
-          title: 'KAKOMON MEMO',
-          text: '問題画像と解答・解説画像'
-        });
-      }else{
-        alert('このブラウザでは複数画像の共有に対応していません。iPhoneのSafariでお試しください。');
+      const backup=JSON.parse(reader.result);
+      if(!Array.isArray(backup.memos))throw new Error();
+      if(!confirm("現在の記録をバックアップ内容に置き換えますか？")){event.target.value="";return;}
+      saveMemos(backup.memos);
+      if(backup.images){
+        for(const [id,data] of Object.entries(backup.images)) await putImage(id,data);
       }
-    }catch(err){
-      if(err && err.name !== 'AbortError'){
-        console.error(err);
-        alert('画像を共有できませんでした。');
-      }
-    }
+      favoriteOnly=false; reviewMode=null; showMemos(); alert("復元しました");
+    }catch(e){ alert("このバックアップファイルは読み込めません"); }
+    event.target.value="";
   };
+  reader.readAsText(file);
+}
 
-  $('deleteBtn').onclick=async()=>{
-    if(!currentQuestion) return;
-    if(!confirm('この問題を削除しますか？')) return;
-    await deleteQuestion(currentQuestion.id);
-    currentIds.splice(currentIndex,1);
-    if(currentIndex>=currentIds.length) currentIndex=Math.max(0,currentIds.length-1);
-    await refreshCount();
-    if(currentIds.length) await loadCurrent();
-    else await openList(currentFilter);
-  };
-
-
-  // 画像タップで全画面拡大。ピンチで拡大縮小、1本指で移動。
-  const zoomOverlay = $('zoomOverlay');
-  const zoomImage = $('zoomImage');
-  let zoomScale = 1, zoomX = 0, zoomY = 0;
-  let pinchStartDist = 0, pinchStartScale = 1;
-  let dragStartX = 0, dragStartY = 0, dragBaseX = 0, dragBaseY = 0;
-
-  function applyZoom(){
-    zoomImage.style.transform = `translate(${zoomX}px, ${zoomY}px) scale(${zoomScale})`;
-  }
-
-  function openZoom(src){
-    if(!src) return;
-    zoomImage.src = src;
-    zoomScale = 1; zoomX = 0; zoomY = 0;
-    applyZoom();
-    zoomOverlay.classList.add('active');
-    zoomOverlay.setAttribute('aria-hidden','false');
-  }
-
-  function closeZoom(){
-    zoomOverlay.classList.remove('active');
-    zoomOverlay.setAttribute('aria-hidden','true');
-    zoomImage.src = '';
-  }
-
-  document.addEventListener('click', e => {
-    const img = e.target.closest('.zoomable');
-    if(img) openZoom(img.src);
-  });
-
-  $('zoomClose').onclick = closeZoom;
-
-  function touchDistance(a,b){
-    return Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY);
-  }
-
-  zoomOverlay.addEventListener('touchstart', e => {
-    if(e.touches.length === 2){
-      pinchStartDist = touchDistance(e.touches[0], e.touches[1]);
-      pinchStartScale = zoomScale;
-    }else if(e.touches.length === 1){
-      dragStartX = e.touches[0].clientX;
-      dragStartY = e.touches[0].clientY;
-      dragBaseX = zoomX;
-      dragBaseY = zoomY;
-    }
-  }, {passive:false});
-
-  zoomOverlay.addEventListener('touchmove', e => {
-    e.preventDefault();
-    if(e.touches.length === 2 && pinchStartDist){
-      const d = touchDistance(e.touches[0], e.touches[1]);
-      zoomScale = Math.max(1, Math.min(5, pinchStartScale * d / pinchStartDist));
-      if(zoomScale === 1){ zoomX = 0; zoomY = 0; }
-      applyZoom();
-    }else if(e.touches.length === 1 && zoomScale > 1){
-      zoomX = dragBaseX + (e.touches[0].clientX - dragStartX);
-      zoomY = dragBaseY + (e.touches[0].clientY - dragStartY);
-      applyZoom();
-    }
-  }, {passive:false});
-
-  zoomOverlay.addEventListener('dblclick', () => {
-    if(zoomScale === 1) zoomScale = 2.5;
-    else { zoomScale = 1; zoomX = 0; zoomY = 0; }
-    applyZoom();
-  });
-
-  let startX=0,startY=0;
-  const viewer=$('viewerWrap');
-  viewer.addEventListener('touchstart',e=>{
-    const t=e.changedTouches[0]; startX=t.clientX; startY=t.clientY;
-  },{passive:true});
-  viewer.addEventListener('touchend',e=>{
-    const t=e.changedTouches[0];
-    const dx=t.clientX-startX, dy=t.clientY-startY;
-    if(Math.abs(dx)<55 || Math.abs(dx)<Math.abs(dy)*1.2) return;
-    if(dx<0) $('slides').classList.add('memo');
-    else $('slides').classList.remove('memo');
-  },{passive:true});
-
-  openDB().then(async()=>{
-    loadFolders();
-    await refreshCount();
-  }).catch(err=>{
-    alert('保存機能を開始できませんでした。Safariで開き直してください。');
-    console.error(err);
-  });
-})();
+showMemos();
 </script>
-
-<div id="zoomOverlay" class="zoomOverlay" aria-hidden="true">
-  <button id="zoomClose" class="zoomClose" aria-label="閉じる">×</button>
-  <div id="zoomStage" class="zoomStage">
-    <img id="zoomImage" class="zoomImage" alt="拡大画像">
-  </div>
-</div>
-
 </body>
 </html>
